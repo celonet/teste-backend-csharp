@@ -23,14 +23,35 @@ namespace Tests.TorreHanoi.Domain
         [TestCategory(CategoriaTeste)]
         public void Construtor_Deve_Retornar_Sucesso()
         {
-            Assert.Fail();
+            var torre = new global::Domain.TorreHanoi.TorreHanoi(3, _mockLogger.Object);
+
+            Assert.IsNotNull(torre);
+            Assert.IsNotNull(torre.PassoAPasso);
+            Assert.AreEqual(torre.Discos.Count, 3);
+            Assert.AreEqual(torre.Intermediario.Discos.Count, 0);
+            Assert.AreEqual(torre.Origem.Discos.Count, 3);
+            Assert.AreEqual(torre.Destino.Discos.Count, 0);
+            Assert.AreEqual(torre.Status, global::Domain.TorreHanoi.TipoStatus.Pendente);
+            Assert.AreNotEqual(torre.DataCriacao, new DateTime());
+            Assert.AreNotEqual(torre.Id, new Guid());
         }
 
         [TestMethod]
         [TestCategory(CategoriaTeste)]
-        public void Processar_Deverar_Retornar_Sucesso()
+        public void Processar_Deve_Retornar_Sucesso()
         {
-            Assert.Fail();
+            var qtdeDiscos = 3;
+            var qtdePassos = Math.Pow(2, qtdeDiscos) - 1;
+
+            var torre = new global::Domain.TorreHanoi.TorreHanoi(qtdeDiscos, _mockLogger.Object);
+
+            torre.Processar();
+
+            Assert.AreEqual(torre.Status, global::Domain.TorreHanoi.TipoStatus.FinalizadoSucesso);
+            Assert.AreEqual(torre.Discos.Count, qtdeDiscos);
+            Assert.AreEqual(qtdePassos, torre.PassoAPasso.Count);
+            Assert.AreNotEqual(torre.DataCriacao, new DateTime());
+            Assert.AreNotEqual(torre.Id, new Guid());
         }
     }
 }

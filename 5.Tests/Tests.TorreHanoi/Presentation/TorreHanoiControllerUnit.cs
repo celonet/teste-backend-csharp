@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
@@ -28,14 +29,16 @@ namespace Tests.TorreHanoi.Presentation
             var mockAdicionarNovoPorcessoResponse = new AdicionarNovoPorcessoResponse { IdProcesso = Guid.NewGuid(), StatusCode = HttpStatusCode.Accepted };
             var mockObterProcessoPorResponse = new ObterProcessoPorResponse { StatusCode = HttpStatusCode.OK, Processo = CriarMockTorreHanoiCompletaDto() };
             var mockObterTodosProcessosResponse = new ObterTodosProcessosResponse { StatusCode = HttpStatusCode.OK, Processos = CriarMockTorreHanoiResumoDto() };
+            var mockObterImagemProcessoPorResponse = new ObterImagemProcessoPorResponse { Imagem = new Bitmap(800, 600), MensagensDeErro = { }, StatusCode = HttpStatusCode.OK };
 
             var mockTorreHanoiApplicationService = new Mock<ITorreHanoiApplicationService>();
             mockTorreHanoiApplicationService.Setup(s => s.AdicionarNovoPorcesso(It.IsAny<int>())).Returns(() => mockAdicionarNovoPorcessoResponse);
             mockTorreHanoiApplicationService.Setup(s => s.ObterProcessoPor(It.Is<string>(id => id.Equals(_idProcesso)))).Returns(() => mockObterProcessoPorResponse);
             mockTorreHanoiApplicationService.Setup(s => s.ObterTodosProcessos()).Returns(() => mockObterTodosProcessosResponse);
+            mockTorreHanoiApplicationService.Setup(s => s.ObterImagemProcessoPor(It.IsAny<string>())).Returns(mockObterImagemProcessoPorResponse);
 
             _controller =
-                new TorreHanoiController(mockTorreHanoiApplicationService.Object) {Request = new HttpRequestMessage()};
+                new TorreHanoiController(mockTorreHanoiApplicationService.Object) { Request = new HttpRequestMessage() };
             _controller.Request.Properties.Add(HttpPropertyKeys.HttpConfigurationKey, new HttpConfiguration());
         }
 
@@ -56,7 +59,7 @@ namespace Tests.TorreHanoi.Presentation
 
         [TestMethod]
         [TestCategory(CategoriaTeste)]
-        public void ObterProcessoPor_Deverar_Retornar_Sucesso()
+        public void ObterProcessoPor_Deve_Retornar_Sucesso()
         {
             var httpResponse = _controller.Get(_idProcesso);
 
@@ -72,7 +75,7 @@ namespace Tests.TorreHanoi.Presentation
 
         [TestMethod]
         [TestCategory(CategoriaTeste)]
-        public void ObterTodosProcessos_Deverar_Retornar_Sucesso()
+        public void ObterTodosProcessos_Deve_Retornar_Sucesso()
         {
             var httpResponse = _controller.Get();
 
@@ -103,8 +106,8 @@ namespace Tests.TorreHanoi.Presentation
                     },
                     Tipo = "Origem"
                 },
-                Destino = new PinoDto {Discos = new List<DiscoDto> {new DiscoDto()}, Tipo = "Destino"},
-                Intermediario = new PinoDto {Discos = new List<DiscoDto> {new DiscoDto()}, Tipo = "Intermediario"}
+                Destino = new PinoDto { Discos = new List<DiscoDto> { new DiscoDto() }, Tipo = "Destino" },
+                Intermediario = new PinoDto { Discos = new List<DiscoDto> { new DiscoDto() }, Tipo = "Intermediario" }
             };
 
             return torre;
@@ -120,15 +123,27 @@ namespace Tests.TorreHanoi.Presentation
                 Status = "Pedente",
                 Origem = new PinoDto
                 {
-                    Discos = new List<DiscoDto> {new DiscoDto {Id = 1}, new DiscoDto {Id = 2}, new DiscoDto {Id = 3}},
+                    Discos = new List<DiscoDto> { new DiscoDto { Id = 1 }, new DiscoDto { Id = 2 }, new DiscoDto { Id = 3 } },
                     Tipo = "Origem"
                 },
-                Destino = new PinoDto {Discos = new List<DiscoDto> {new DiscoDto()}, Tipo = "Destino"},
-                Intermediario = new PinoDto {Discos = new List<DiscoDto> {new DiscoDto()}, Tipo = "Intermediario"}
+                Destino = new PinoDto { Discos = new List<DiscoDto> { new DiscoDto() }, Tipo = "Destino" },
+                Intermediario = new PinoDto { Discos = new List<DiscoDto> { new DiscoDto() }, Tipo = "Intermediario" }
             };
 
             torres.Add(torre);
             return torres;
+        }
+
+        [TestMethod]
+        [TestCategory(CategoriaTeste)]
+        public void ObterImagemProcessoPor_Deve_Retornar_Sucesso()
+        {
+            var httpResponse = _controller.GetImagem(_idProcesso);
+
+            Assert.IsNotNull(httpResponse);
+            Assert.AreEqual(httpResponse.StatusCode, HttpStatusCode.OK);
+            Assert.IsNotNull(httpResponse.Content);
+            Assert.IsTrue(httpResponse.IsSuccessStatusCode);
         }
     }
 }

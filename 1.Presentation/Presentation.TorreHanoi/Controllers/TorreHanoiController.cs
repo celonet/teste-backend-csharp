@@ -26,7 +26,6 @@ namespace Presentation.TorreHanoi.Controllers
         public HttpResponseMessage Post(int numeroDiscos)
         {
             var response = _service.AdicionarNovoPorcesso(numeroDiscos);
-
             return Request.CreateResponse(response.StatusCode, response);
         }
 
@@ -40,7 +39,6 @@ namespace Presentation.TorreHanoi.Controllers
         public HttpResponseMessage Get(string id)
         {
             var response = _service.ObterProcessoPor(id);
-
             return Request.CreateResponse(response.StatusCode, response);
         }
 
@@ -54,16 +52,21 @@ namespace Presentation.TorreHanoi.Controllers
         public HttpResponseMessage GetImagem(string id)
         {
             var response = _service.ObterImagemProcessoPor(id);
-            var httpResponseMessage = new HttpResponseMessage();
-            var memoryStream = new MemoryStream();
-            response.Imagem?.Save(memoryStream, ImageFormat.Bmp);
-            memoryStream.Position = 0;
-            httpResponseMessage.Content = new StreamContent(memoryStream);
-            httpResponseMessage.Content.Headers.ContentLength = memoryStream.Length;
-            httpResponseMessage.Content.Headers.ContentType = new MediaTypeHeaderValue("image/Bmp");
-            httpResponseMessage.StatusCode = response.StatusCode;
 
-            return httpResponseMessage;
+            if (response.IsValid)
+            {
+                var httpResponseMessage = new HttpResponseMessage();
+                var memoryStream = new MemoryStream();
+                response.Imagem?.Save(memoryStream, ImageFormat.Bmp);
+                memoryStream.Position = 0;
+                httpResponseMessage.Content = new StreamContent(memoryStream);
+                httpResponseMessage.Content.Headers.ContentLength = memoryStream.Length;
+                httpResponseMessage.Content.Headers.ContentType = new MediaTypeHeaderValue("image/Bmp");
+                httpResponseMessage.StatusCode = response.StatusCode;
+                return httpResponseMessage;
+            }
+            
+            return Request.CreateResponse(response.StatusCode, response);
         }
 
         /// <summary>

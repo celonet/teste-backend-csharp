@@ -42,7 +42,17 @@ namespace Tests.TorreHanoi.Domain
 
         [TestMethod]
         [TestCategory(CategoriaTeste)]
-        public void ObterPor_Deverar_Retornar_Sucesso()
+        [ExpectedException(typeof(ArgumentException))]
+        public void ObterPor_Deve_Retornar_Falha_Se_Id_Invalido()
+        {
+            var idInvalido = Guid.Empty;
+
+            _service.ObterPor(idInvalido);
+        }
+
+        [TestMethod]
+        [TestCategory(CategoriaTeste)]
+        public void ObterPor_Deve_Retornar_Sucesso()
         {
             var response = _service.ObterPor(Guid.NewGuid());
 
@@ -54,7 +64,7 @@ namespace Tests.TorreHanoi.Domain
 
         [TestMethod]
         [TestCategory(CategoriaTeste)]
-        public void ObterTodos_Deverar_Retornar_Sucesso()
+        public void ObterTodos_Deve_Retornar_Sucesso()
         {
             var response = _service.ObterTodos();
 

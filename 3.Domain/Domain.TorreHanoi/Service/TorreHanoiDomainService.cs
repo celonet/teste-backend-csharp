@@ -28,6 +28,9 @@ namespace Domain.TorreHanoi.Service
 
         public TorreHanoi ObterPor(Guid id)
         {
+            if (id == Guid.Empty)
+                throw new ArgumentException("Id não pode ser vazio");
+
             return _queueRepository.ObterPor(id);
         }
 

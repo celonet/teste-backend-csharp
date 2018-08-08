@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Net;
 using Application.TorreHanoi.Implementation;
 using Application.TorreHanoi.Interface;
@@ -17,6 +18,7 @@ namespace Tests.TorreHanoi.Application
         private const string CategoriaTeste = "Application/Service/TorreHanoi";
 
         private ITorreHanoiApplicationService _service;
+        private Mock<IDesignerService> _mockDesignerService;
 
         [TestInitialize]
         public void SetUp()
@@ -24,14 +26,14 @@ namespace Tests.TorreHanoi.Application
             var mockLogger = new Mock<ILogger>();
             mockLogger.Setup(s => s.Logar(It.IsAny<string>(), It.IsAny<TipoLog>()));
 
-            var mockDesignerService = new Mock<IDesignerService>();
+            _mockDesignerService = new Mock<IDesignerService>();
 
             var mockTorreHanoiDomainService = new Mock<ITorreHanoiDomainService>();
             mockTorreHanoiDomainService.Setup(s => s.Criar(It.IsAny<int>())).Returns(Guid.NewGuid);
             mockTorreHanoiDomainService.Setup(s => s.ObterPor(It.IsAny<Guid>())).Returns(() => new global::Domain.TorreHanoi.TorreHanoi(3, mockLogger.Object));
             mockTorreHanoiDomainService.Setup(s => s.ObterTodos()).Returns(() => new List<global::Domain.TorreHanoi.TorreHanoi> { new global::Domain.TorreHanoi.TorreHanoi(3, mockLogger.Object) });
 
-            _service = new TorreHanoiApplicationService(mockTorreHanoiDomainService.Object, mockLogger.Object, mockDesignerService.Object);
+            _service = new TorreHanoiApplicationService(mockTorreHanoiDomainService.Object, mockLogger.Object, _mockDesignerService.Object);
         }
 
         [TestMethod]
@@ -49,7 +51,7 @@ namespace Tests.TorreHanoi.Application
 
         [TestMethod]
         [TestCategory(CategoriaTeste)]
-        public void ObterProcessoPor_Deverar_Retornar_Sucesso()
+        public void ObterProcessoPor_Deve_Retornar_Sucesso()
         {
             var response = _service.ObterProcessoPor(Guid.NewGuid().ToString());
 
@@ -62,7 +64,7 @@ namespace Tests.TorreHanoi.Application
 
         [TestMethod]
         [TestCategory(CategoriaTeste)]
-        public void ObterTodosProcessos_Deverar_Retornar_Sucesso()
+        public void ObterTodosProcessos_Deve_Retornar_Sucesso()
         {
             var response = _service.ObterTodosProcessos();
 
@@ -79,7 +81,18 @@ namespace Tests.TorreHanoi.Application
         [TestCategory(CategoriaTeste)]
         public void ObterImagemProcessoPor_Deve_Retornar_Imagem()
         {
-            Assert.Fail();
+            var processoId = Guid.NewGuid().ToString();
+            _mockDesignerService.Setup(s => s.Desenhar()).Returns(new Bitmap(800, 600));
+
+            var response = _service.ObterImagemProcessoPor(processoId);
+
+            Assert.IsNotNull(response);
+            Assert.IsNotNull(response.Imagem);
+            Assert.IsTrue(response.IsValid);
+            Assert.IsTrue(response.MensagensDeErro.Count == 0);
+            Assert.AreEqual(response.Imagem.Height, 600);
+            Assert.AreEqual(response.Imagem.Width, 800);
+            Assert.AreEqual(response.StatusCode, HttpStatusCode.OK);
         }
     }
 }

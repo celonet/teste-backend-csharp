@@ -4,6 +4,6 @@ namespace Infrastructure.TorreHanoi.ServiceAgent
 {
     public interface ISlackServiceAgent
     {
-        Task<bool> Post(string mensgem);
+        Task<bool> Post(string mensagem);
     }
 }
